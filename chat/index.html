@@ -1,1 +1,99 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Droniq Chat</title><link rel="stylesheet" href="/assets/overlay.css"/><style>body{margin:0;font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}#wrap{display:flex;flex-direction:column;height:100vh}#msgs{flex:1;overflow:auto;padding:12px;background:#fff}.m{margin:8px 0}.me{text-align:right}.bubble{background:#f7f7f8;border-radius:10px;padding:8px;display:inline-block;max-width:85%}.me .bubble{background:#e8f0ff}#bar{display:flex;gap:8px;padding:8px;border-top:1px solid #eee;background:#fff}input{flex:1;padding:10px;border:1px solid #ddd;border-radius:8px}button{padding:10px 14px;border:0;border-radius:8px;background:#111;color:#fff;cursor:pointer}small a{color:#0a66c2}</style></head><body><div id="wrap"><div id="msgs"></div><div id="bar"><input id="q" placeholder="Frag uns etwas …"/><button id="go">Senden</button></div></div><script>const m=document.getElementById('msgs');const q=document.getElementById('q');document.getElementById('go').onclick=s;function a(r,h){const d=document.createElement('div');d.className='m '+(r==='me'?'me':'');d.innerHTML='<div class="bubble">'+h+'</div>';m.appendChild(d);m.scrollTop=m.scrollHeight;}async function s(){const t=q.value.trim();if(!t)return;a('me',t);q.value='';a('bot','…');try{const r=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({message:t})});const j=await r.json();m.lastChild.remove();let x=(j.answer||'').replace(/\n/g,'<br/>');if(j.citations&&j.citations.length){x+='<br/><small>Quellen: '+j.citations.map(u=>'<a target="_blank" href="'+u+'">'+u+'</a>').join(' , ')+'</small>';}a('bot',x||'Entschuldigung, keine Antwort.');}catch(e){m.lastChild.remove();a('bot','Entschuldigung, der Chat ist nicht verfügbar.');}}q.addEventListener('keydown',e=>{if(e.key==='Enter')s();});</script></body></html>
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Droniq Chat-Hilfe</title>
+  <link rel="stylesheet" href="/assets/overlay.css"/>
+  <style>
+    :root{
+      --dq-bg-aqua:#cfe8ea; --dq-teal:#0b6f73; --dq-ink:#0b1220; --dq-shadow:0 8px 18px rgba(0,0,0,.16);
+    }
+    html,body{height:100%}
+    body{margin:0;font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--dq-ink);background:#fff}
+    #wrap{display:flex;flex-direction:column;height:100%}
+
+    /* Header */
+    #header{display:flex;align-items:center;justify-content:space-between;background:var(--dq-bg-aqua);color:var(--dq-teal);padding:10px 12px;border-bottom:1px solid rgba(0,0,0,.06)}
+    #title{display:flex;align-items:center;gap:8px;font-weight:600}
+    #title svg{width:20px;height:20px;stroke:var(--dq-teal);fill:none;stroke-width:1.8}
+    #close{background:transparent;border:0;color:var(--dq-teal);font-size:20px;cursor:pointer;line-height:1;padding:6px 8px;border-radius:8px}
+    #close:hover{background:rgba(0,0,0,.05)}
+
+    /* Messages */
+    #msgs{flex:1;overflow:auto;padding:14px;background:#fff}
+    .m{margin:10px 0;display:flex}
+    .m.me{justify-content:flex-end}
+    .bubble{max-width:80%;padding:10px 12px;border-radius:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .m.bot .bubble{background:#f6fbfc;border:1px solid #e2f0f1;color:#0b2530}
+    .m.me  .bubble{background:#0b6f73;color:#fff}
+
+    /* Composer */
+    #bar{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(0,0,0,.06);background:#fff}
+    #q{flex:1;padding:10px 12px;border:1px solid #e1e6ed;border-radius:10px;outline:none}
+    #q:focus{border-color:#b8dadd;box-shadow:0 0 0 3px rgba(11,111,115,.12)}
+    #go{padding:10px 14px;border:0;border-radius:10px;background:#0b6f73;color:#fff;cursor:pointer}
+
+    small a{color:#0a66c2;text-decoration:none}
+  </style>
+</head>
+<body>
+<div id="wrap">
+  <div id="header">
+    <div id="title">
+      <svg viewBox="0 0 24 24"><path d="M21 12c0 3.866-3.806 7-8.5 7-1.01 0-1.967-.147-2.85-.42L5 20l1.61-3.034C5.615 15.864 5 14.49 5 13c0-3.866 3.806-7 8.5-7S21 8.134 21 12Z"/><circle cx="10" cy="12" r="1.2"/><circle cx="13.5" cy="12" r="1.2"/><circle cx="17" cy="12" r="1.2"/></svg>
+      <span>Droniq Chat-Hilfe</span>
+    </div>
+    <button id="close" title="Schließen">×</button>
+  </div>
+
+  <div id="msgs"></div>
+
+  <div id="bar">
+    <input id="q" placeholder="Frag uns etwas … (z. B. Lieferzeit, Retoure, Widerruf)"/>
+    <button id="go">Senden</button>
+  </div>
+</div>
+
+<script>
+const msgs = document.getElementById('msgs');
+const q    = document.getElementById('q');
+
+document.getElementById('go').onclick = send;
+document.getElementById('close').onclick = () => parent.postMessage('vchat-close','*');
+
+function add(role, html){
+  const d = document.createElement('div');
+  d.className = 'm '+(role==='me'?'me':'bot');
+  d.innerHTML = `<div class="bubble">${html}</div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function send(){
+  const text = q.value.trim(); if(!text) return;
+  add('me', text); q.value='';
+  add('bot','…');
+  try{
+    const r = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body: JSON.stringify({ message: text })
+    });
+    const j = await r.json();
+    msgs.lastChild.remove();
+    let a = (j.answer||'').replace(/\n/g,'<br/>');
+    if (j.citations && j.citations.length){
+      a += `<br/><small>Quellen: ${j.citations.map(u=>`<a target="_blank" href="${u}">${u}</a>`).join(' , ')}</small>`;
+    }
+    add('bot', a || 'Entschuldigung, keine Antwort.');
+  }catch(e){
+    msgs.lastChild.remove();
+    add('bot', 'Entschuldigung, der Chat ist nicht verfügbar.');
+  }
+}
+
+q.addEventListener('keydown', e => { if(e.key === 'Enter') send(); });
+</script>
+</body>
+</html>
