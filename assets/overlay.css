@@ -1,6 +1,69 @@
-:root { --dq-bg-aqua:#cfe8ea; --dq-teal:#0b6f73; --dq-ink:#0b1220; --dq-shadow:0 8px 18px rgba(0,0,0,.16); --dq-radius:10px; }
-#vchat-rail{ position:fixed; right:16px; top:20%; display:flex; flex-direction:column; gap:12px; z-index:2147483647; pointer-events:auto; }
-.vchat-tile{ width:140px; min-height:72px; background:var(--dq-bg-aqua); border:0; border-radius:var(--dq-radius); box-shadow:var(--dq-shadow); cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center; color:var(--dq-teal); font:14px/1.2 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
-.vchat-tile svg{ width:28px; height:28px; stroke:var(--dq-teal); fill:none; stroke-width:1.8; }
-.vchat-frame{ position:fixed; right:176px; bottom:16px; width:420px; height:600px; border:0; border-radius:14px; box-shadow:var(--dq-shadow); background:#fff; display:none; z-index:2147483647; }
-@media (max-width:900px){ #vchat-rail{ top:auto; bottom:16px; right:16px; } .vchat-frame{ right:16px; left:16px; width:auto; height:70vh; } }
+/* ====== Droniq chat overlay – visual match to support tiles ====== */
+:root{
+  --dq-aqua: #cfe8ea;   /* tile background */
+  --dq-teal: #0b6f73;   /* icon + label */
+  --dq-shadow: 0 6px 14px rgba(0,0,0,.12);
+  --dq-radius: 10px;
+}
+
+/* Rail that holds the new tile (position adjusted dynamically by JS) */
+#vchat-rail{
+  position: fixed;
+  right: 16px;            /* fallback – JS auto-aligns to native rail */
+  top: 25%;               /* fallback – JS auto-aligns to native rail */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;              /* same spacing as the other tiles */
+  z-index: 2147483647;    /* always on top */
+  pointer-events: auto;
+}
+
+/* Tile – match size/shape/typography of existing buttons */
+.vchat-tile{
+  width: 140px;
+  min-height: 72px;
+  padding: 10px 8px;
+  background: var(--dq-aqua);
+  color: var(--dq-teal);
+  border: 0;
+  border-radius: var(--dq-radius);
+  box-shadow: var(--dq-shadow);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  font: 600 14px/1.15 "Nunito Sans", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Line icon sized like the native tiles */
+.vchat-tile svg{
+  width: 28px;
+  height: 28px;
+  stroke: var(--dq-teal);
+  fill: none;
+  stroke-width: 1.8;
+}
+
+/* Chat window – opens to the left of the rail */
+.vchat-frame{
+  position: fixed;
+  right: 176px;           /* 140 tile + ~20 gutter + right margin */
+  bottom: 16px;
+  width: 420px;
+  height: 600px;
+  border: 0;
+  border-radius: 14px;
+  box-shadow: var(--dq-shadow);
+  background: #fff;
+  display: none;
+  z-index: 2147483647;
+}
+
+/* Mobile */
+@media (max-width: 900px){
+  #vchat-rail{ top: auto; bottom: 16px; right: 16px; }
+  .vchat-frame{ right: 16px; left: 16px; width: auto; height: 70vh; }
+}
